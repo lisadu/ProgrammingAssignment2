@@ -1,9 +1,9 @@
-## This is similar to the example code except one refactoring:
-## I moved the calculation to inside the makeCacheMatrix since
-## from an object oriented programing perspective, it makes sense
+## This is similar to the example code 
+## Usage:
+## m <- makeCacheMatrix(x)
+## cacheSolve(m)
 
-## This function creates a wrapper around a matrix
-## It adds functionality to calculate the inverse and cache it
+## This function creates a wrapper around a matrix to cache values
 makeCacheMatrix <- function(x = matrix()) {
   cachedInverse <- NULL
   
@@ -12,26 +12,26 @@ makeCacheMatrix <- function(x = matrix()) {
     cachedInverse <<- NULL
   }
   get <- function() x
-  
-  getInverse <- function() {
-    if(is.null(cachedInverse)) {
-      message("calculating inverse of data")
-      cachedInverse <<- solve(x)
-    } else {
-      message("getting cached data")
-    }
-    cachedInverse
-  }
+  setInverse <- function(inv) cachedInverse <<- inv
+  getInverse <- function() cachedInverse
   
   list(set = set, 
        get = get,
+       setInverse = setInverse,
        getInverse = getInverse)
 }
 
 
-## All the work is done in makeCacheMatrix
-
+## This function takes in a makeCacheMatrix, tries to get the cached inverse, 
+## if it doesnt exist yet, then it will be calculated
 cacheSolve <- function(x, ...) {
-  m <- makeCacheMatrix(x)
-  m$getInverse()
+  inv <- x$getInverse()
+  if(is.null(inv)) {
+    message("calculating inverse of data")
+    inv <- solve(x$get())
+    x$setInverse(inv)
+  } else {
+    message("getting cached data")
+  }
+  return(inv)
 }
